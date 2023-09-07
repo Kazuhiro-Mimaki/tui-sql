@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"dboost/tui"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	t := tui.New()
+
+	if err := t.Run(); err != nil {
+		panic(err)
+	}
 }
