@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  db-go-database-sql:
+    image: mysql:8.0.29
+    platform: linux/amd64
+    container_name: db-go-database-sql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: world
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: password
