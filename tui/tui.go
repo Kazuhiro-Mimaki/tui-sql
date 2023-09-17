@@ -96,6 +96,18 @@ func (tui *TUI) setTables(tables []string) {
 
 func (tui *TUI) setDBs(dbs []string) {
 	tui.queueUpdateDraw(func() {
-		tui.dbDD.SetOptions(dbs, nil)
+		tui.dbDD.SetOptions(dbs, func(db string, index int) {
+			tui.selectDB(db)
+		})
+		tui.dbDD.SetCurrentOption(0)
 	})
+}
+
+func (tui *TUI) selectDB(db string) error {
+	tables, err := tui.sql.ListTables(db)
+	if err != nil {
+		return err
+	}
+	tui.setTables(tables)
+	return nil
 }
