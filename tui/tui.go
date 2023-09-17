@@ -1,41 +1,76 @@
 package tui
 
 import (
+	"dboost/mysql"
+
 	"github.com/rivo/tview"
 )
 
 type TUI struct {
-	App *tview.Application
-
-	Flex *tview.Flex
-
-	tables *tview.List
+	App       *tview.Application
+	sql       *mysql.Mysql
+	flex      *tview.Flex
+	dbDD      *tview.DropDown
+	tableList *tview.List
 }
 
 func New() *TUI {
+	ds := "root:pass@(localhost:3306)/"
+
 	t := &TUI{
-		App:    tview.NewApplication(),
-		Flex:   tview.NewFlex(),
-		tables: tview.NewList(),
+		App:       tview.NewApplication(),
+		sql:       mysql.New(ds),
+		flex:      tview.NewFlex(),
+		dbDD:      tview.NewDropDown(),
+		tableList: tview.NewList(),
 	}
-
-	t.tables.
-		ShowSecondaryText(false).
-		SetTitle("Tables").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true)
-	t.setTables()
-
-	t.Flex.
-		AddItem(t.tables, 0, 1, false).
-		AddItem(tview.NewBox().SetBorder(true).SetTitle("Main"), 0, 4, false)
 
 	return t
 }
 
 func (tui *TUI) Run() error {
+	tui.drawLayout()
+	tui.setData()
 	tui.setEventKey()
-	return tui.App.SetRoot(tui.Flex, true).SetFocus(tui.Flex).Run()
+	return tui.App.SetRoot(tui.flex, true).SetFocus(tui.flex).Run()
+}
+
+func (tui *TUI) drawLayout() {
+	tui.tableList.
+		ShowSecondaryText(false).
+		SetTitle("Tables").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true)
+
+	tui.dbDD.
+		SetTitle("Database").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true)
+
+	side := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(tui.dbDD, 0, 1, true).
+		AddItem(tui.tableList, 0, 5, false)
+
+	tui.flex.
+		AddItem(side, 0, 1, false).
+		AddItem(tview.NewBox().SetBorder(true).SetTitle("Main"), 0, 4, false)
+}
+
+func (tui *TUI) setData() error {
+	dbs, err := tui.sql.ListDBs()
+	if err != nil {
+		return err
+	}
+	tui.setDBs(dbs)
+
+	tables, err := tui.sql.ListTables(dbs[0])
+	if err != nil {
+		return err
+	}
+	tui.setTables(tables)
+
+	return nil
 }
 
 func (tui *TUI) queueUpdateDraw(f func()) {
@@ -50,11 +85,17 @@ func (tui *TUI) setFocus(p tview.Primitive) {
 	})
 }
 
-func (tui *TUI) setTables() {
+func (tui *TUI) setTables(tables []string) {
 	tui.queueUpdateDraw(func() {
-		tui.tables.Clear()
-		for _, table := range []string{"table1", "table2", "table3"} {
-			tui.tables.AddItem(table, "", 0, nil)
+		tui.tableList.Clear()
+		for _, table := range tables {
+			tui.tableList.AddItem(table, "", 0, nil)
 		}
+	})
+}
+
+func (tui *TUI) setDBs(dbs []string) {
+	tui.queueUpdateDraw(func() {
+		tui.dbDD.SetOptions(dbs, nil)
 	})
 }

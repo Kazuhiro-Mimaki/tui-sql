@@ -34,3 +34,46 @@ func (m *Mysql) Close() error {
 	}
 	return nil
 }
+
+func (m *Mysql) ListDBs() ([]string, error) {
+	rows, err := m.db.Query("SHOW DATABASES")
+	if err != nil {
+		return nil, err
+	}
+
+	dbs := []string{}
+
+	for rows.Next() {
+		var dbName string
+		err = rows.Scan(&dbName)
+		if err == nil {
+			dbs = append(dbs, dbName)
+		}
+	}
+
+	return dbs, err
+}
+
+func (m *Mysql) ListTables(db string) ([]string, error) {
+	_, err := m.db.Exec("USE " + db)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := m.db.Query("SHOW TABLES")
+	if err != nil {
+		return nil, err
+	}
+
+	tables := []string{}
+
+	for rows.Next() {
+		var tableName string
+		err = rows.Scan(&tableName)
+		if err == nil {
+			tables = append(tables, tableName)
+		}
+	}
+
+	return tables, err
+}
