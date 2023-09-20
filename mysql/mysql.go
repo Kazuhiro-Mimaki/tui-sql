@@ -77,3 +77,52 @@ func (m *Mysql) ListTables(db string) ([]string, error) {
 
 	return tables, err
 }
+
+func (m *Mysql) ListRecords(table string) (data [][]*string, err error) {
+	rows, err := m.db.Query(fmt.Sprintf("SELECT * FROM %s", table))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err = scanRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func scanRows(rows *sql.Rows) (data [][]*string, err error) {
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	var colNames []*string
+	for _, col := range cols {
+		colName := col
+		colNames = append(colNames, &colName)
+	}
+
+	data = [][]*string{}
+
+	// カラム名を最初に設定
+	data = append(data, colNames)
+
+	for rows.Next() {
+		row := make([]*string, len(cols))
+		rowPointers := make([]interface{}, len(cols))
+		for i := range row {
+			rowPointers[i] = &row[i]
+		}
+
+		err = rows.Scan(rowPointers...)
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+
+	return data, err
+}
