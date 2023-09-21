@@ -1,29 +1,34 @@
 package tui
 
-import "github.com/gdamore/tcell/v2"
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
 
-func (tui *TUI) setKeyEvent() {
-	tui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+func (t *TUI) setFocus(p tview.Primitive) {
+	t.App.SetFocus(p)
+}
+
+func (t *TUI) setKeyEvent() {
+	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlA:
-			tui.setFocus(tui.tableList)
+			t.setFocus(t.ui.TableList)
 		case tcell.KeyCtrlS:
-			tui.setFocus(tui.dbDD)
+			t.setFocus(t.ui.DBDD)
 		case tcell.KeyCtrlR:
-			tui.setFocus(tui.records)
+			t.setFocus(t.ui.Records)
 		}
 		return event
 	})
 }
 
-func (tui *TUI) setEvent() {
-	tui.queueUpdateDraw(func() {
-		tui.dbDD.SetSelectedFunc(func(db string, _ int) {
-			tui.selectDB(db)
-		})
+func (t *TUI) setEvent() {
+	t.ui.DBDD.SetSelectedFunc(func(db string, _ int) {
+		t.selectDB(db)
+	})
 
-		tui.tableList.SetSelectedFunc(func(_ int, table, _ string, _ rune) {
-			tui.selectTable(table)
-		})
+	t.ui.TableList.SetSelectedFunc(func(_ int, table, _ string, _ rune) {
+		t.selectTable(table)
 	})
 }
