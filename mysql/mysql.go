@@ -126,3 +126,17 @@ func scanRows(rows *sql.Rows) (data [][]*string, err error) {
 
 	return data, err
 }
+
+func (m *Mysql) CustomQuery(query string) (data [][]*string, err error) {
+	rows, err := m.db.Query(fmt.Sprintf("%s", query))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err = scanRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}

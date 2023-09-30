@@ -31,4 +31,8 @@ func (t *TUI) setEvent() {
 	t.ui.TableList.SetSelectedFunc(func(_ int, table, _ string, _ rune) {
 		t.selectTable(table)
 	})
+
+	t.ui.Query.SetDoneFunc(func(key tcell.Key) {
+		t.query(t.ui.Query.GetText())
+	})
 }

@@ -8,6 +8,7 @@ import (
 type UI struct {
 	DBDD      *tview.DropDown
 	TableList *tview.List
+	Query     *tview.InputField
 	Records   *tview.Table
 }
 
@@ -15,6 +16,7 @@ func New() *UI {
 	t := &UI{
 		DBDD:      tview.NewDropDown(),
 		TableList: tview.NewList(),
+		Query:     tview.NewInputField(),
 		Records:   tview.NewTable(),
 	}
 
@@ -22,14 +24,14 @@ func New() *UI {
 }
 
 func (ui *UI) Draw() *tview.Flex {
-	ui.TableList.
-		ShowSecondaryText(false).
-		SetTitle("Tables").
+	ui.DBDD.
+		SetTitle("Database").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
-	ui.DBDD.
-		SetTitle("Database").
+	ui.TableList.
+		ShowSecondaryText(false).
+		SetTitle("Tables").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
@@ -38,16 +40,27 @@ func (ui *UI) Draw() *tview.Flex {
 		AddItem(ui.DBDD, 0, 1, true).
 		AddItem(ui.TableList, 0, 5, false)
 
+	ui.Query.
+		SetTitle("Query").
+		SetTitleAlign(tview.AlignLeft).
+		SetBorder(true)
+
 	ui.Records.
 		Select(0, 0).
 		SetFixed(1, 0).
 		SetSelectable(true, true).
 		SetTitle("Records").
+		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
+
+	main := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(ui.Query, 0, 1, false).
+		AddItem(ui.Records, 0, 5, false)
 
 	return tview.NewFlex().
 		AddItem(side, 0, 1, false).
-		AddItem(ui.Records, 0, 4, false)
+		AddItem(main, 0, 4, false)
 }
 
 func (ui *UI) SetDBs(dbs []string) {

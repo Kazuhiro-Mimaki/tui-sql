@@ -30,7 +30,7 @@ func (t *TUI) Run() error {
 	t.setData()
 	t.setKeyEvent()
 	t.setEvent()
-	return t.App.SetRoot(layout, true).SetFocus(layout).Run()
+	return t.App.SetRoot(layout, true).SetFocus(layout).EnableMouse(true).Run()
 }
 
 func (t *TUI) setData() error {
@@ -67,6 +67,15 @@ func (t *TUI) selectDB(db string) error {
 
 func (t *TUI) selectTable(table string) error {
 	records, err := t.sql.ListRecords(table)
+	if err != nil {
+		return err
+	}
+	t.ui.SetRecords(records)
+	return nil
+}
+
+func (t *TUI) query(query string) error {
+	records, err := t.sql.CustomQuery(query)
 	if err != nil {
 		return err
 	}
