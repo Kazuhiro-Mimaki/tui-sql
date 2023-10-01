@@ -1,6 +1,11 @@
 package tui
 
 import (
+	"errors"
+	"log"
+
+	"dboost/ds"
+	"dboost/mysql"
 	"dboost/postgresql"
 	"dboost/ui"
 
@@ -9,19 +14,19 @@ import (
 
 type TUI struct {
 	App *tview.Application
-	// sql      *mysql.Mysql
-	sql *postgresql.Postgresql
+	ds  ds.DataSource
 	ui  *ui.UI
 }
 
 func New() *TUI {
-	// ds := "root:pass@(localhost:3306)/"
-	ds := "postgres://postgres:pass@localhost:5432/dvdrental?sslmode=disable"
+	ds, err := getDataSource("mysql")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	t := &TUI{
 		App: tview.NewApplication(),
-		// sql:      mysql.New(ds),
-		sql: postgresql.New(ds),
+		ds:  ds,
 		ui:  ui.New(),
 	}
 
@@ -38,7 +43,7 @@ func (t *TUI) Run() error {
 }
 
 func (t *TUI) setData() error {
-	dbs, err := t.sql.ListDBs()
+	dbs, err := t.ds.ListDBs()
 	if err != nil {
 		return err
 	}
@@ -49,7 +54,7 @@ func (t *TUI) setData() error {
 }
 
 func (t *TUI) selectDB(db string) error {
-	tables, err := t.sql.ListTables(db)
+	tables, err := t.ds.ListTables(db)
 	if err != nil {
 		return err
 	}
@@ -58,7 +63,7 @@ func (t *TUI) selectDB(db string) error {
 }
 
 func (t *TUI) selectTable(table string) error {
-	records, err := t.sql.ListRecords(table)
+	records, err := t.ds.ListRecords(table)
 	if err != nil {
 		return err
 	}
@@ -67,7 +72,7 @@ func (t *TUI) selectTable(table string) error {
 }
 
 func (t *TUI) query(query string) error {
-	records, err := t.sql.CustomQuery(query)
+	records, err := t.ds.CustomQuery(query)
 	if err != nil {
 		return err
 	}
@@ -79,4 +84,17 @@ func (t *TUI) queueUpdateDraw(f func()) {
 	go func() {
 		t.App.QueueUpdateDraw(f)
 	}()
+}
+
+func getDataSource(connType string) (ds.DataSource, error) {
+	switch connType {
+	case "mysql":
+		ds := "root:pass@(localhost:3306)/"
+		return mysql.New(ds), nil
+	case "postgres":
+		ds := "postgres://postgres:pass@localhost:5432/dvdrental?sslmode=disable"
+		return postgresql.New(ds), nil
+	default:
+		return nil, errors.New("invalid connection type")
+	}
 }

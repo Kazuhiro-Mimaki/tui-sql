@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"dboost/ds"
+
 	_ "github.com/lib/pq"
 )
 
@@ -12,8 +14,8 @@ type Postgresql struct {
 	db *sql.DB
 }
 
-func New(dataSource string) *Postgresql {
-	db, err := sql.Open("postgres", dataSource)
+func New(dsn string) ds.DataSource {
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("failed to sql.Open: %v\n", err)
 	}
@@ -21,24 +23,24 @@ func New(dataSource string) *Postgresql {
 	return &Postgresql{db}
 }
 
-func (m *Postgresql) Ping() error {
-	err := m.db.Ping()
+func (p *Postgresql) Ping() error {
+	err := p.db.Ping()
 	if err != nil {
 		return fmt.Errorf("failed to db.Ping: %v\n", err)
 	}
 	return nil
 }
 
-func (m *Postgresql) Close() error {
-	err := m.db.Close()
+func (p *Postgresql) Close() error {
+	err := p.db.Close()
 	if err != nil {
 		return fmt.Errorf("failed to db.Close: %v\n", err)
 	}
 	return nil
 }
 
-func (m *Postgresql) ListDBs() ([]string, error) {
-	rows, err := m.db.Query("SELECT datname FROM pg_database")
+func (p *Postgresql) ListDBs() ([]string, error) {
+	rows, err := p.db.Query("SELECT datname FROM pg_database")
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +58,8 @@ func (m *Postgresql) ListDBs() ([]string, error) {
 	return dbs, err
 }
 
-func (m *Postgresql) ListTables(db string) ([]string, error) {
-	rows, err := m.db.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_catalog = '%s';", db))
+func (p *Postgresql) ListTables(db string) ([]string, error) {
+	rows, err := p.db.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_catalog = '%s';", db))
 	if err != nil {
 		return nil, err
 	}
@@ -75,13 +77,13 @@ func (m *Postgresql) ListTables(db string) ([]string, error) {
 	return tables, err
 }
 
-func (m *Postgresql) ListRecords(table string) (data [][]*string, err error) {
-	rows, err := m.db.Query(fmt.Sprintf("SELECT * FROM %s", table))
+func (p *Postgresql) ListRecords(table string) (data [][]*string, err error) {
+	rows, err := p.db.Query(fmt.Sprintf("SELECT * FROM %s", table))
 	if err != nil {
 		return nil, err
 	}
 
-	data, err = scanRows(rows)
+	data, err = p.scanRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +91,7 @@ func (m *Postgresql) ListRecords(table string) (data [][]*string, err error) {
 	return data, nil
 }
 
-func scanRows(rows *sql.Rows) (data [][]*string, err error) {
+func (p *Postgresql) scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -124,13 +126,13 @@ func scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	return data, err
 }
 
-func (m *Postgresql) CustomQuery(query string) (data [][]*string, err error) {
-	rows, err := m.db.Query(fmt.Sprintf("%s", query))
+func (p *Postgresql) CustomQuery(query string) (data [][]*string, err error) {
+	rows, err := p.db.Query(fmt.Sprintf("%s", query))
 	if err != nil {
 		return nil, err
 	}
 
-	data, err = scanRows(rows)
+	data, err = p.scanRows(rows)
 	if err != nil {
 		return nil, err
 	}

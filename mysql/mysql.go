@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"dboost/ds"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -12,8 +14,8 @@ type Mysql struct {
 	db *sql.DB
 }
 
-func New(dataSource string) *Mysql {
-	db, err := sql.Open("mysql", dataSource)
+func New(dsn string) ds.DataSource {
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("failed to sql.Open: %v\n", err)
 	}
@@ -86,7 +88,7 @@ func (m *Mysql) ListRecords(table string) (data [][]*string, err error) {
 		return nil, err
 	}
 
-	data, err = scanRows(rows)
+	data, err = m.scanRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +96,7 @@ func (m *Mysql) ListRecords(table string) (data [][]*string, err error) {
 	return data, nil
 }
 
-func scanRows(rows *sql.Rows) (data [][]*string, err error) {
+func (m *Mysql) scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -135,7 +137,7 @@ func (m *Mysql) CustomQuery(query string) (data [][]*string, err error) {
 		return nil, err
 	}
 
-	data, err = scanRows(rows)
+	data, err = m.scanRows(rows)
 	if err != nil {
 		return nil, err
 	}
