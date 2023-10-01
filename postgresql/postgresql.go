@@ -1,27 +1,27 @@
-package mysql
+package postgresql
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
-type Mysql struct {
+type Postgresql struct {
 	db *sql.DB
 }
 
-func New(dataSource string) *Mysql {
-	db, err := sql.Open("mysql", dataSource)
+func New(dataSource string) *Postgresql {
+	db, err := sql.Open("postgres", dataSource)
 	if err != nil {
 		log.Fatalf("failed to sql.Open: %v\n", err)
 	}
 
-	return &Mysql{db}
+	return &Postgresql{db}
 }
 
-func (m *Mysql) Ping() error {
+func (m *Postgresql) Ping() error {
 	err := m.db.Ping()
 	if err != nil {
 		return fmt.Errorf("failed to db.Ping: %v\n", err)
@@ -29,7 +29,7 @@ func (m *Mysql) Ping() error {
 	return nil
 }
 
-func (m *Mysql) Close() error {
+func (m *Postgresql) Close() error {
 	err := m.db.Close()
 	if err != nil {
 		return fmt.Errorf("failed to db.Close: %v\n", err)
@@ -37,8 +37,8 @@ func (m *Mysql) Close() error {
 	return nil
 }
 
-func (m *Mysql) ListDBs() ([]string, error) {
-	rows, err := m.db.Query("SHOW DATABASES")
+func (m *Postgresql) ListDBs() ([]string, error) {
+	rows, err := m.db.Query("SELECT datname FROM pg_database")
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +56,8 @@ func (m *Mysql) ListDBs() ([]string, error) {
 	return dbs, err
 }
 
-func (m *Mysql) ListTables(db string) ([]string, error) {
-	_, err := m.db.Exec("USE " + db)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := m.db.Query("SHOW TABLES")
+func (m *Postgresql) ListTables(db string) ([]string, error) {
+	rows, err := m.db.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_catalog = '%s';", db))
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +75,7 @@ func (m *Mysql) ListTables(db string) ([]string, error) {
 	return tables, err
 }
 
-func (m *Mysql) ListRecords(table string) (data [][]*string, err error) {
+func (m *Postgresql) ListRecords(table string) (data [][]*string, err error) {
 	rows, err := m.db.Query(fmt.Sprintf("SELECT * FROM %s", table))
 	if err != nil {
 		return nil, err
@@ -129,7 +124,7 @@ func scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	return data, err
 }
 
-func (m *Mysql) CustomQuery(query string) (data [][]*string, err error) {
+func (m *Postgresql) CustomQuery(query string) (data [][]*string, err error) {
 	rows, err := m.db.Query(fmt.Sprintf("%s", query))
 	if err != nil {
 		return nil, err

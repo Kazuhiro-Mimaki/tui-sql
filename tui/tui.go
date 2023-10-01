@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"dboost/mysql"
+	"dboost/postgresql"
 	"dboost/ui"
 
 	"github.com/rivo/tview"
@@ -9,16 +9,19 @@ import (
 
 type TUI struct {
 	App *tview.Application
-	sql *mysql.Mysql
+	// sql      *mysql.Mysql
+	sql *postgresql.Postgresql
 	ui  *ui.UI
 }
 
 func New() *TUI {
-	ds := "root:pass@(localhost:3306)/"
+	// ds := "root:pass@(localhost:3306)/"
+	ds := "postgres://postgres:pass@localhost:5432/dvdrental?sslmode=disable"
 
 	t := &TUI{
 		App: tview.NewApplication(),
-		sql: mysql.New(ds),
+		// sql:      mysql.New(ds),
+		sql: postgresql.New(ds),
 		ui:  ui.New(),
 	}
 
@@ -30,6 +33,7 @@ func (t *TUI) Run() error {
 	t.setData()
 	t.setKeyEvent()
 	t.setEvent()
+
 	return t.App.SetRoot(layout, true).SetFocus(layout).EnableMouse(true).Run()
 }
 
@@ -39,19 +43,7 @@ func (t *TUI) setData() error {
 		return err
 	}
 
-	tables, err := t.sql.ListTables(dbs[0])
-	if err != nil {
-		return err
-	}
-
-	records, err := t.sql.ListRecords(tables[0])
-	if err != nil {
-		return err
-	}
-
 	t.ui.SetDBs(dbs)
-	t.ui.SetTables(tables)
-	t.ui.SetRecords(records)
 
 	return nil
 }
