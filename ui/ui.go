@@ -38,7 +38,7 @@ func (ui *UI) Draw() *tview.Flex {
 	side := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(ui.DBDD, 0, 1, true).
-		AddItem(ui.TableList, 0, 5, false)
+		AddItem(ui.TableList, 0, 13, false)
 
 	ui.Query.
 		SetTitle("Query").
@@ -56,7 +56,7 @@ func (ui *UI) Draw() *tview.Flex {
 	main := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(ui.Query, 0, 1, false).
-		AddItem(ui.Records, 0, 5, false)
+		AddItem(ui.Records, 0, 13, false)
 
 	return tview.NewFlex().
 		AddItem(side, 0, 1, false).
