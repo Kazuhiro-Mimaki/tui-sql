@@ -25,13 +25,13 @@ func New() *UI {
 
 func (ui *UI) Draw() *tview.Flex {
 	ui.DBDD.
-		SetTitle("Database").
+		SetTitle("Database (Ctrl-A)").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
 	ui.TableList.
 		ShowSecondaryText(false).
-		SetTitle("Tables").
+		SetTitle("Tables (Ctrl-S)").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
@@ -41,7 +41,7 @@ func (ui *UI) Draw() *tview.Flex {
 		AddItem(ui.TableList, 0, 13, false)
 
 	ui.Query.
-		SetTitle("Query").
+		SetTitle("Query (Ctrl-E)").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
@@ -49,7 +49,7 @@ func (ui *UI) Draw() *tview.Flex {
 		Select(0, 0).
 		SetFixed(1, 0).
 		SetSelectable(true, true).
-		SetTitle("Records").
+		SetTitle("Records (Ctrl-R)").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 

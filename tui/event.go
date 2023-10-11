@@ -13,9 +13,11 @@ func (t *TUI) setKeyEvent() {
 	t.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlA:
-			t.setFocus(t.ui.TableList)
-		case tcell.KeyCtrlS:
 			t.setFocus(t.ui.DBDD)
+		case tcell.KeyCtrlS:
+			t.setFocus(t.ui.TableList)
+		case tcell.KeyCtrlE:
+			t.setFocus(t.ui.Query)
 		case tcell.KeyCtrlR:
 			t.setFocus(t.ui.Records)
 		}
@@ -26,13 +28,16 @@ func (t *TUI) setKeyEvent() {
 func (t *TUI) setEvent() {
 	t.ui.DBDD.SetSelectedFunc(func(db string, _ int) {
 		t.selectDB(db)
+		t.setFocus(t.ui.TableList)
 	})
 
 	t.ui.TableList.SetSelectedFunc(func(_ int, table, _ string, _ rune) {
 		t.selectTable(table)
+		t.setFocus(t.ui.Records)
 	})
 
 	t.ui.Query.SetDoneFunc(func(key tcell.Key) {
 		t.query(t.ui.Query.GetText())
+		t.setFocus(t.ui.Records)
 	})
 }
