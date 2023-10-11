@@ -96,6 +96,20 @@ func (m *Mysql) ListRecords(table string) (data [][]*string, err error) {
 	return data, nil
 }
 
+func (m *Mysql) ListSchemas(table string) (data [][]*string, err error) {
+	rows, err := m.db.Query(fmt.Sprintf("DESCRIBE %s", table))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err = m.scanRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (m *Mysql) scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	cols, err := rows.Columns()
 	if err != nil {

@@ -91,6 +91,20 @@ func (p *Postgresql) ListRecords(table string) (data [][]*string, err error) {
 	return data, nil
 }
 
+func (m *Postgresql) ListSchemas(table string) (data [][]*string, err error) {
+	rows, err := m.db.Query(fmt.Sprintf("SELECT column_name, data_type, character_maximum_length, column_default, is_nullable FROM INFORMATION_SCHEMA.COLUMNS where table_name = '%s'", table))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err = m.scanRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (p *Postgresql) scanRows(rows *sql.Rows) (data [][]*string, err error) {
 	cols, err := rows.Columns()
 	if err != nil {

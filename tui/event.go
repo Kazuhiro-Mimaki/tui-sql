@@ -14,12 +14,16 @@ func (t *TUI) setKeyEvent() {
 		switch event.Key() {
 		case tcell.KeyCtrlA:
 			t.setFocus(t.ui.DBDD)
-		case tcell.KeyCtrlS:
+		case tcell.KeyCtrlF:
 			t.setFocus(t.ui.TableList)
 		case tcell.KeyCtrlE:
 			t.setFocus(t.ui.Query)
 		case tcell.KeyCtrlR:
-			t.setFocus(t.ui.Records)
+			t.ui.Preview.SwitchPage("records")
+			t.setFocus(t.ui.Preview.Records)
+		case tcell.KeyCtrlS:
+			t.ui.Preview.SwitchPage("schemas")
+			t.setFocus(t.ui.Preview.Schemas)
 		}
 		return event
 	})
@@ -33,11 +37,11 @@ func (t *TUI) setEvent() {
 
 	t.ui.TableList.SetSelectedFunc(func(_ int, table, _ string, _ rune) {
 		t.selectTable(table)
-		t.setFocus(t.ui.Records)
+		t.setFocus(t.ui.Preview.Records)
 	})
 
 	t.ui.Query.SetDoneFunc(func(key tcell.Key) {
 		t.query(t.ui.Query.GetText())
-		t.setFocus(t.ui.Records)
+		t.setFocus(t.ui.Preview.Records)
 	})
 }

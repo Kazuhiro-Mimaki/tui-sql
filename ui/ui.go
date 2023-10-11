@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -9,7 +8,7 @@ type UI struct {
 	DBDD      *tview.DropDown
 	TableList *tview.List
 	Query     *tview.InputField
-	Records   *tview.Table
+	Preview   *Preview
 }
 
 func New() *UI {
@@ -17,7 +16,7 @@ func New() *UI {
 		DBDD:      tview.NewDropDown(),
 		TableList: tview.NewList(),
 		Query:     tview.NewInputField(),
-		Records:   tview.NewTable(),
+		Preview:   NewPreview(),
 	}
 
 	return t
@@ -31,7 +30,7 @@ func (ui *UI) Draw() *tview.Flex {
 
 	ui.TableList.
 		ShowSecondaryText(false).
-		SetTitle("Tables (Ctrl-S)").
+		SetTitle("Tables (Ctrl-F)").
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
@@ -45,18 +44,10 @@ func (ui *UI) Draw() *tview.Flex {
 		SetTitleAlign(tview.AlignLeft).
 		SetBorder(true)
 
-	ui.Records.
-		Select(0, 0).
-		SetFixed(1, 0).
-		SetSelectable(true, true).
-		SetTitle("Records (Ctrl-R)").
-		SetTitleAlign(tview.AlignLeft).
-		SetBorder(true)
-
 	main := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(ui.Query, 0, 1, false).
-		AddItem(ui.Records, 0, 13, false)
+		AddItem(ui.Preview.View, 0, 13, false)
 
 	return tview.NewFlex().
 		AddItem(side, 0, 1, false).
@@ -72,35 +63,5 @@ func (ui *UI) SetTables(tables []string) {
 	ui.TableList.Clear()
 	for _, table := range tables {
 		ui.TableList.AddItem(table, "", 0, nil)
-	}
-}
-
-func (ui *UI) SetRecords(records [][]*string) {
-	ui.Records.Clear().ScrollToBeginning()
-
-	for i, row := range records {
-		for j, col := range row {
-			var cellValue string
-			cellColor := tcell.ColorWhite
-			notSelectable := false
-
-			if col != nil {
-				cellValue = *col
-			}
-
-			// カラム名の色はレコードと異なるものを指定
-			if i == 0 {
-				cellColor = tcell.ColorNavy
-			}
-
-			ui.Records.SetCell(
-				i, j,
-				&tview.TableCell{
-					Text:          cellValue,
-					Color:         cellColor,
-					NotSelectable: notSelectable,
-				},
-			)
-		}
 	}
 }

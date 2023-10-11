@@ -64,16 +64,23 @@ func (t *TUI) selectTable(table string) error {
 	if err != nil {
 		return err
 	}
-	t.ui.SetRecords(records)
+	schemas, err := t.ds.ListSchemas(table)
+	if err != nil {
+		return err
+	}
+	t.ui.Preview.SetRecords(records)
+	t.ui.Preview.SetSchemas(schemas)
+	t.ui.Preview.SwitchPage("records")
 	return nil
 }
 
 func (t *TUI) query(query string) error {
-	records, err := t.ds.CustomQuery(query)
+	rows, err := t.ds.CustomQuery(query)
 	if err != nil {
 		return err
 	}
-	t.ui.SetRecords(records)
+	t.ui.Preview.SetRecords(rows)
+	t.ui.Preview.SetSchemas(rows)
 	return nil
 }
 
