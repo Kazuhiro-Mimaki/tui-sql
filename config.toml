@@ -1,0 +1,15 @@
+[[conns]]
+type = "mysql"
+user = "root"
+password = "pass"
+host = "localhost"
+port = "3306"
+db = "world"
+
+[[conns]]
+type = "postgres"
+user = "postgres"
+password = "pass"
+host = "localhost"
+port = "5432"
+db = "dvdrental"

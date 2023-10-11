@@ -3,6 +3,7 @@ module dboost
 go 1.20
 
 require (
+	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.6.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect

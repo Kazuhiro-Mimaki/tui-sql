@@ -1,8 +1,6 @@
 package main
 
-import (
-	"dboost/tui"
-)
+import "dboost/tui"
 
 func main() {
 	t := tui.New()

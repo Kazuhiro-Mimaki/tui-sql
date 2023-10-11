@@ -2,32 +2,29 @@ package tui
 
 import (
 	"errors"
-	"log"
 
+	"dboost/config"
 	"dboost/ds"
-	"dboost/mysql"
-	"dboost/postgresql"
+	"dboost/ds/db/mysql"
+	"dboost/ds/db/postgresql"
+
 	"dboost/ui"
 
 	"github.com/rivo/tview"
 )
 
 type TUI struct {
-	App *tview.Application
-	ds  ds.DataSource
-	ui  *ui.UI
+	App    *tview.Application
+	ds     ds.DataSource
+	ui     *ui.UI
+	config *config.Config
 }
 
 func New() *TUI {
-	ds, err := getDataSource("mysql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	t := &TUI{
-		App: tview.NewApplication(),
-		ds:  ds,
-		ui:  ui.New(),
+		App:    tview.NewApplication(),
+		ui:     ui.New(),
+		config: config.New(),
 	}
 
 	return t
@@ -42,18 +39,18 @@ func (t *TUI) Run() error {
 	return t.App.SetRoot(layout, true).SetFocus(layout).EnableMouse(true).Run()
 }
 
-func (t *TUI) setData() error {
-	dbs, err := t.ds.ListDBs()
-	if err != nil {
-		return err
-	}
-
+func (t *TUI) setData() {
+	dbs := t.config.ListDBs()
 	t.ui.SetDBs(dbs)
-
-	return nil
 }
 
 func (t *TUI) selectDB(db string) error {
+	ds, err := t.getDataSource(db)
+	if err != nil {
+		return err
+	}
+	t.ds = ds
+
 	tables, err := t.ds.ListTables(db)
 	if err != nil {
 		return err
@@ -86,14 +83,17 @@ func (t *TUI) queueUpdateDraw(f func()) {
 	}()
 }
 
-func getDataSource(connType string) (ds.DataSource, error) {
-	switch connType {
+func (t *TUI) getDataSource(db string) (ds.DataSource, error) {
+	conn, err := t.config.GetConn(db)
+	if err != nil {
+		return nil, err
+	}
+
+	switch conn.Type {
 	case "mysql":
-		ds := "root:pass@(localhost:3306)/"
-		return mysql.New(ds), nil
+		return mysql.New(conn.Dsn), nil
 	case "postgres":
-		ds := "postgres://postgres:pass@localhost:5432/dvdrental?sslmode=disable"
-		return postgresql.New(ds), nil
+		return postgresql.New(conn.Dsn), nil
 	default:
 		return nil, errors.New("invalid connection type")
 	}
