@@ -3,12 +3,12 @@ package tui
 import (
 	"errors"
 
-	"dboost/config"
-	"dboost/ds"
-	"dboost/ds/db/mysql"
-	"dboost/ds/db/postgresql"
+	"tui-sql/config"
+	"tui-sql/ds"
+	"tui-sql/ds/db/mysql"
+	"tui-sql/ds/db/postgresql"
 
-	"dboost/ui"
+	"tui-sql/ui"
 
 	"github.com/rivo/tview"
 )

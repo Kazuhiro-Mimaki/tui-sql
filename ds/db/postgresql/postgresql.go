@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"dboost/ds"
+	"tui-sql/ds"
 
 	_ "github.com/lib/pq"
 )

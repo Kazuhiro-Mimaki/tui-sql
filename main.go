@@ -1,6 +1,6 @@
 package main
 
-import "dboost/tui"
+import "tui-sql/tui"
 
 func main() {
 	t := tui.New()

@@ -1,4 +1,4 @@
-module dboost
+module tui-sql
 
 go 1.20
 
