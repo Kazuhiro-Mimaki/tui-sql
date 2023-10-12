@@ -2,6 +2,8 @@
 
 TUI sql client tool built with go(tview).
 
+https://github.com/Kazuhiro-Mimaki/tui-sql/assets/62820515/ab9ae83a-fdb3-4a81-921b-9bb4c15cf3df
+
 ## Features
 
 - Connect to multiple databases
