@@ -8,12 +8,15 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: pass
+    volumes:
+      - ./sample/mysql:/docker-entrypoint-initdb.d
   postgres-go-database:
     image: postgres:latest
     container_name: postgres-go-database
+    restart: always
     ports:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: pass
     volumes:
-      - ~/Downloads/dvdrental.tar:/var/lib/dvdrental
+      - ./sample/postgres:/docker-entrypoint-initdb.d
